@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.example.musicplayer.model.Song
 
-class SongListAdapter(private  val songs: List<Song>) : RecyclerView.Adapter<SongListAdapter.SongViewHolder>() {
+class SongListAdapter(private  val songs: List<Song>, private val songListListener: SongListListener) : RecyclerView.Adapter<SongListAdapter.SongViewHolder>() {
 
-    class SongViewHolder(cardView: CardView,val titleText:TextView, val artistText:TextView,
+    class SongViewHolder(val cardView: CardView,val titleText:TextView, val artistText:TextView,
                          val albumText : TextView) : RecyclerView.ViewHolder(cardView)
 
     override fun onCreateViewHolder(parent: ViewGroup, pos: Int): SongListAdapter.SongViewHolder {
@@ -29,6 +29,7 @@ class SongListAdapter(private  val songs: List<Song>) : RecyclerView.Adapter<Son
         holder.titleText.text = songs[pos].title
         holder.albumText.text = songs[pos].album
         holder.artistText.text = songs[pos].artist
+        holder.cardView.setOnClickListener{songListListener.onSongChanged(pos)}
     }
 
 

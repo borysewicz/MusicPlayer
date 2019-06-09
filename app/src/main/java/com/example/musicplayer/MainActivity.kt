@@ -1,28 +1,50 @@
 package com.example.musicplayer
 
 import android.Manifest
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import com.example.musicplayer.model.Song
 import android.provider.MediaStore
-import android.util.Log
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.Toolbar
 import android.view.View
+import android.content.ComponentName
+import android.content.Context
+import android.os.IBinder
+import android.content.ServiceConnection
 
 
-class MainActivity : AppCompatActivity() {
+
+
+
+
+class MainActivity : AppCompatActivity(), SongListListener {
 
     private lateinit var songList : MutableList<Song>
     private lateinit var songView : RecyclerView
+    private lateinit var musicService: MusicService
+    private var playIntent : Intent? = null
+    private var isBound = false
     private val READ_PERM_KEY = 667
     private var hasPermission = false
     private val MARGIN = 8
+
+    val musicConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            val binder = service as MusicService.MusicBinder
+            musicService = binder.getService()
+            musicService.setSongs(songList)
+            isBound = true
+        }
+        override fun onServiceDisconnected(name: ComponentName) {
+            isBound = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         songView = findViewById(R.id.home_songList_RV)
         songList = mutableListOf()
         handlePermissions()
-        val songAdapter : SongListAdapter = SongListAdapter(songList)
+        val songAdapter : SongListAdapter = SongListAdapter(songList, this)
         val viewManager = LinearLayoutManager(this)
         val rv = findViewById<RecyclerView>(R.id.home_songList_RV).apply{
             setHasFixedSize(true)
@@ -38,6 +60,20 @@ class MainActivity : AppCompatActivity() {
             adapter = songAdapter
         }
         rv.addItemDecoration(SpacesItemDecoration(MARGIN))
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if(playIntent == null){
+            playIntent = Intent(this, MusicService::class.java)
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE)
+            startService(playIntent)
+        }
+    }
+
+    override fun onSongChanged(songId: Int) {
+        musicService.songPos = songId
+        musicService.playSong()
     }
 
     private fun handlePermissions() {
@@ -93,6 +129,11 @@ class MainActivity : AppCompatActivity() {
             } while (musicCursor.moveToNext())
         }
         musicCursor.close()
+    }
+
+    override fun onDestroy() {
+        stopService(playIntent)
+        super.onDestroy()
     }
 }
 
