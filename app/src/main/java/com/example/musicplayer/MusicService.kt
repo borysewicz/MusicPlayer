@@ -9,6 +9,7 @@ import android.os.PowerManager
 import com.example.musicplayer.model.Song
 import android.content.ContentUris
 import android.util.Log
+import java.util.*
 
 
 class MusicService : Service(), MediaPlayer.OnPreparedListener,
@@ -28,6 +29,8 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
     private lateinit var songs: List<Song>
     var songPos = 0
     private val musicBind = MusicBinder()
+    var isShuffling = false
+    private val random = Random()
     private lateinit var listener: MusicServiceListener
 
 
@@ -116,8 +119,17 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
     }
 
     fun playNext(){
-        songPos = (songPos + 1) % songs.size
-        playSong()
+        if(isShuffling){
+            var newSong = random.nextInt(songs.size)
+            while(newSong==songPos){
+                newSong = random.nextInt(songs.size)
+            }
+            songPos=newSong
+        }
+        else{
+            songPos = (songPos +1)%songs.size
+        }
+        playSong();
     }
 
     inner class MusicBinder : Binder() {

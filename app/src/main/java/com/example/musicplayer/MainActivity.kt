@@ -17,12 +17,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.IBinder
 import android.content.ServiceConnection
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.MediaController
 
 
 class MainActivity : AppCompatActivity(), SongListListener, MediaController.MediaPlayerControl, MusicServiceListener {
-
-
 
     private var songList : MutableList<Song> = mutableListOf()
     private lateinit var songAdapter : SongListAdapter
@@ -64,7 +65,22 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
             addItemDecoration(SpacesItemDecoration(MARGIN))
         }
         setController()
+        setSupportActionBar(findViewById(R.id.main_toolbar))
     }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.home_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId){
+            R.id.home_shuffle_button -> musicService.isShuffling = !musicService.isShuffling
+        }
+        return true
+    }
+
 
     override fun onStart() {
         super.onStart()
@@ -114,7 +130,7 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
 
     override fun pause() {
         musicService.pausePlayer()
-    }
+        }
 
     override fun getBufferPercentage(): Int {
         return 0
