@@ -14,10 +14,7 @@ class SongListAdapter(private  val songs: List<Song>, private val songListListen
     private var lastSelected = -1
 
    inner class SongViewHolder(val cardView: CardView,val titleText:TextView, val artistText:TextView,
-                         val albumText : TextView) : RecyclerView.ViewHolder(cardView){
-
-
-    }
+                         val albumText : TextView) : RecyclerView.ViewHolder(cardView)
 
     override fun onCreateViewHolder(parent: ViewGroup, pos: Int): SongListAdapter.SongViewHolder {
         val cardView : CardView =LayoutInflater.from(parent.context)
@@ -26,6 +23,13 @@ class SongListAdapter(private  val songs: List<Song>, private val songListListen
         val albumText = cardView.findViewById<TextView>(R.id.songlist_element_album)
         val artistText = cardView.findViewById<TextView>(R.id.songlist_element_author)
         return SongViewHolder(cardView,titleText,artistText,albumText)
+    }
+
+    fun refreshSelectedSong(pos: Int){
+        val oldPos = lastSelected
+        lastSelected = pos
+        notifyItemChanged(oldPos)
+        notifyItemChanged(lastSelected)
     }
 
     override fun getItemCount(): Int {
@@ -38,12 +42,10 @@ class SongListAdapter(private  val songs: List<Song>, private val songListListen
         holder.artistText.text = songs[pos].artist
         holder.cardView.setOnClickListener{
             songListListener.onSongChanged(pos)
-            val oldPos = lastSelected
-            lastSelected = pos
-            notifyItemChanged(oldPos)
-            notifyItemChanged(lastSelected)
+            refreshSelectedSong(pos)
         }
-        holder.itemView.setBackgroundColor(if (lastSelected == pos) Color.GREEN else Color.WHITE)
+//        holder.itemView.setBackgroundColor(if (lastSelected == pos) Color.GREEN else Color.WHITE)
+        holder.cardView.setBackgroundResource(if (lastSelected == pos) R.drawable.playing_song_background else R.drawable.inactve_song_background)
     }
 
 

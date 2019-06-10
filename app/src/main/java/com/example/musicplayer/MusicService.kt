@@ -72,7 +72,7 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
 
     override fun onPrepared(mp: MediaPlayer?) {
         mp?.start()
-        listener.refreshController()
+        listener.refreshUI(songPos)
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {

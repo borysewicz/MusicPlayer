@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
 
 
     private var songList : MutableList<Song> = mutableListOf()
-    private lateinit var songView : RecyclerView
+    private lateinit var songAdapter : SongListAdapter
     private lateinit var musicService: MusicService
     private lateinit var controller: MusicController
     private var playIntent : Intent? = null
@@ -53,9 +53,9 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        songView = findViewById(R.id.home_songList_RV)
+        val songView = findViewById<RecyclerView>(R.id.home_songList_RV)
         handlePermissions()
-        val songAdapter = SongListAdapter(songList, this)
+        songAdapter = SongListAdapter(songList, this)
         val viewManager = LinearLayoutManager(this)
         songView.apply{
             setHasFixedSize(true)
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
            controller = MusicController(this)
            controller.setPrevNextListeners({ playNext() }, { playPrev() })
            controller.setMediaPlayer(this)
-           controller.setAnchorView(findViewById(R.id.home_constrain_layout))
+           controller.setAnchorView(findViewById(R.id.home_songList_RV))
            controller.isEnabled = true
        }
     }
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
         musicService.playPrev()
     }
 
-    // below are the functions overrode for MediaController widget
+    // below are the functions overridden for MediaController widget
 
     override fun isPlaying(): Boolean {
         if (!this::musicService.isInitialized){
@@ -153,8 +153,9 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
     }
 
     // function overriden from MusicServiceListener
-    override fun refreshController() {
+    override fun refreshUI(songPos : Int) {
        controller.show()
+        songAdapter.refreshSelectedSong(songPos)
     }
 
     private fun handlePermissions() {
@@ -215,8 +216,8 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
 class SpacesItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-        outRect.left = 2 * space
-        outRect.right = 2 * space
+        outRect.left =  space
+        outRect.right =  space
         outRect.bottom = space
 
         if (parent.getChildAdapterPosition(view) == 0) {
