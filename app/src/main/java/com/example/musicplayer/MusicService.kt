@@ -7,18 +7,18 @@ import android.os.Binder
 import android.os.IBinder
 import android.os.PowerManager
 import com.example.musicplayer.model.Song
-import com.example.musicplayer.MusicService.MusicBinder
 import android.content.ContentUris
 import android.util.Log
 
 
-
-
-
-
-
 class MusicService : Service(), MediaPlayer.OnPreparedListener,
                                 MediaPlayer.OnErrorListener,MediaPlayer.OnCompletionListener {
+
+
+    companion object {
+        private const val  MSG_ERR_LOADING = "Error loading song from uri"
+        private const val ERR_LOADING = "Error loading"
+    }
 
     private val player: MediaPlayer = MediaPlayer().also {
         it.setOnPreparedListener(this)
@@ -28,8 +28,8 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
     private lateinit var songs: List<Song>
     var songPos = 0
     private val musicBind = MusicBinder()
-    private val MSG_ERR_LOADING = "Error loading song from uri"
-    private val ERR_LOADING = "Error loading"
+    private lateinit var listener: MusicServiceListener
+
 
     override fun onCreate() {
         super.onCreate()
@@ -50,6 +50,10 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
         this.songs = songs
     }
 
+    fun setListener(listener: MusicServiceListener){
+        this.listener = listener
+    }
+
     fun playSong(){
         player.reset()
         val playSong = songs[songPos]
@@ -68,14 +72,52 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
 
     override fun onPrepared(mp: MediaPlayer?) {
         mp?.start()
+        listener.refreshController()
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mp?.reset()
+        return true
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mp?.reset()
+        playNext()
+    }
+
+    fun getPos(): Int {
+        return player.currentPosition
+    }
+
+    fun getDur(): Int {
+        return player.duration
+    }
+
+    fun isPlaying(): Boolean {
+        return player.isPlaying
+    }
+
+    fun pausePlayer() {
+        player.pause()
+    }
+
+    fun seek(pos: Int) {
+        player.seekTo(pos)
+    }
+
+    fun go() {
+        player.start()
+    }
+
+    fun playPrev(){
+        songPos--;
+        if (songPos < 0) songPos = songs.size - 1
+        playSong()
+    }
+
+    fun playNext(){
+        songPos = (songPos + 1) % songs.size
+        playSong()
     }
 
     inner class MusicBinder : Binder() {

@@ -17,28 +17,32 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.IBinder
 import android.content.ServiceConnection
+import android.widget.MediaController
+
+
+class MainActivity : AppCompatActivity(), SongListListener, MediaController.MediaPlayerControl, MusicServiceListener {
 
 
 
-
-
-
-class MainActivity : AppCompatActivity(), SongListListener {
-
-    private lateinit var songList : MutableList<Song>
+    private var songList : MutableList<Song> = mutableListOf()
     private lateinit var songView : RecyclerView
     private lateinit var musicService: MusicService
+    private lateinit var controller: MusicController
     private var playIntent : Intent? = null
     private var isBound = false
-    private val READ_PERM_KEY = 667
     private var hasPermission = false
-    private val MARGIN = 8
 
-    val musicConnection = object : ServiceConnection {
+    companion object {
+        private const val MARGIN = 8
+        private const val READ_PERM_KEY = 667
+    }
+
+    private val musicConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             val binder = service as MusicService.MusicBinder
             musicService = binder.getService()
             musicService.setSongs(songList)
+            musicService.setListener(this@MainActivity)
             isBound = true
         }
         override fun onServiceDisconnected(name: ComponentName) {
@@ -50,16 +54,16 @@ class MainActivity : AppCompatActivity(), SongListListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         songView = findViewById(R.id.home_songList_RV)
-        songList = mutableListOf()
         handlePermissions()
-        val songAdapter : SongListAdapter = SongListAdapter(songList, this)
+        val songAdapter = SongListAdapter(songList, this)
         val viewManager = LinearLayoutManager(this)
-        val rv = findViewById<RecyclerView>(R.id.home_songList_RV).apply{
+        songView.apply{
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = songAdapter
+            addItemDecoration(SpacesItemDecoration(MARGIN))
         }
-        rv.addItemDecoration(SpacesItemDecoration(MARGIN))
+        setController()
     }
 
     override fun onStart() {
@@ -71,9 +75,86 @@ class MainActivity : AppCompatActivity(), SongListListener {
         }
     }
 
+    private fun setController(){
+       if (!this::controller.isInitialized) {
+           controller = MusicController(this)
+           controller.setPrevNextListeners({ playNext() }, { playPrev() })
+           controller.setMediaPlayer(this)
+           controller.setAnchorView(findViewById(R.id.home_constrain_layout))
+           controller.isEnabled = true
+       }
+    }
+
+    private fun playNext() {
+        musicService.playNext()
+    }
+
+    private fun playPrev() {
+        musicService.playPrev()
+    }
+
+    // below are the functions overrode for MediaController widget
+
+    override fun isPlaying(): Boolean {
+        if (!this::musicService.isInitialized){
+            return false
+        }
+        return musicService.isPlaying()
+    }
+
+    override fun canSeekForward(): Boolean {
+        return true
+    }
+
+    override fun getDuration(): Int {
+        return if (isPlaying){
+            musicService.getDur()
+        } else 0
+    }
+
+    override fun pause() {
+        musicService.pausePlayer()
+    }
+
+    override fun getBufferPercentage(): Int {
+        return 0
+    }
+
+    override fun seekTo(pos: Int) {
+        musicService.seek(pos)
+    }
+
+    override fun getCurrentPosition(): Int {
+        return if (isPlaying){
+            musicService.getPos()
+        } else 0
+    }
+
+    override fun canSeekBackward(): Boolean {
+        return true
+    }
+
+    override fun start() {
+        musicService.go()
+    }
+
+    override fun getAudioSessionId(): Int {
+        return 0
+    }
+
+    override fun canPause(): Boolean {
+       return true
+    }
+
+    // function overriden from SongListListener
     override fun onSongChanged(songId: Int) {
         musicService.songPos = songId
         musicService.playSong()
+    }
+
+    // function overriden from MusicServiceListener
+    override fun refreshController() {
+       controller.show()
     }
 
     private fun handlePermissions() {
@@ -108,23 +189,17 @@ class MainActivity : AppCompatActivity(), SongListListener {
     private fun getSongList(){
         val musicResolver = contentResolver
        val musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ALBUM
+        val projection = arrayOf( MediaStore.Audio.Media._ID, MediaStore.Audio.Media.ARTIST,
+                                    MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ALBUM
         )
-        val musicCursor = musicResolver.query(musicUri, projection, null, null, projection[2])
+        val musicCursor = musicResolver.query(musicUri, projection, null, null, projection[2]) // last arg -  sorting by title
         if (musicCursor != null && musicCursor.moveToFirst()) {
-            val titleColumn = musicCursor.getColumnIndex(projection[2])
-            val idColumn = musicCursor.getColumnIndex(projection[0])
-            val artistColumn = musicCursor.getColumnIndex(projection[1])
-            val albumColumn = musicCursor.getColumnIndex(projection[3])
+
             do {
-                val id = musicCursor.getLong(idColumn)
-                val title = musicCursor.getString(titleColumn)
-                val artist = musicCursor.getString(artistColumn)
-                val album = musicCursor.getString(albumColumn)
+                val id = musicCursor.getLong(musicCursor.getColumnIndex(projection[0]))
+                val artist = musicCursor.getString(musicCursor.getColumnIndex(projection[1]))
+                val title = musicCursor.getString(musicCursor.getColumnIndex(projection[2]))
+                val album = musicCursor.getString(musicCursor.getColumnIndex(projection[3]))
                 songList.add(Song(id, title, artist,album))
             } while (musicCursor.moveToNext())
         }

@@ -1,16 +1,23 @@
 package com.example.musicplayer
 
+import android.graphics.Color
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.example.musicplayer.model.Song
 
 class SongListAdapter(private  val songs: List<Song>, private val songListListener: SongListListener) : RecyclerView.Adapter<SongListAdapter.SongViewHolder>() {
 
-    class SongViewHolder(val cardView: CardView,val titleText:TextView, val artistText:TextView,
-                         val albumText : TextView) : RecyclerView.ViewHolder(cardView)
+    private var lastSelected = -1
+
+   inner class SongViewHolder(val cardView: CardView,val titleText:TextView, val artistText:TextView,
+                         val albumText : TextView) : RecyclerView.ViewHolder(cardView){
+
+
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, pos: Int): SongListAdapter.SongViewHolder {
         val cardView : CardView =LayoutInflater.from(parent.context)
@@ -29,7 +36,14 @@ class SongListAdapter(private  val songs: List<Song>, private val songListListen
         holder.titleText.text = songs[pos].title
         holder.albumText.text = songs[pos].album
         holder.artistText.text = songs[pos].artist
-        holder.cardView.setOnClickListener{songListListener.onSongChanged(pos)}
+        holder.cardView.setOnClickListener{
+            songListListener.onSongChanged(pos)
+            val oldPos = lastSelected
+            lastSelected = pos
+            notifyItemChanged(oldPos)
+            notifyItemChanged(lastSelected)
+        }
+        holder.itemView.setBackgroundColor(if (lastSelected == pos) Color.GREEN else Color.WHITE)
     }
 
 
