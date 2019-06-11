@@ -124,9 +124,13 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
     }
 
     override fun getDuration(): Int {
-        return if (isPlaying){
-            musicService.getDur()
-        } else 0
+        val dur = musicService.getDur()
+       if (dur < 0){    // sometimes the widget asks for duration before the song is ready, causing a bug - if this situation occurs, we reset the song played
+           onSongChanged(musicService.songPos)
+           return 0
+       }
+        return dur
+
     }
 
     override fun pause() {
@@ -142,9 +146,7 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
     }
 
     override fun getCurrentPosition(): Int {
-        return if (isPlaying){
-            musicService.getPos()
-        } else 0
+         return musicService.getPos()
     }
 
     override fun canSeekBackward(): Boolean {
