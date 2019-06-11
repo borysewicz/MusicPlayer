@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    xmlns:tools="http://schemas.android.com/tools"
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" android:id="@+id/songlist_card"
-                                    app:cardCornerRadius="30dp">
+                                    android:layout_height="wrap_content" android:id="@+id/songlist_card">
     <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent" android:id="@+id/songlist_constrant">
@@ -13,42 +11,42 @@
                 android:text="The Suburbs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/songlist_element_title" android:layout_marginTop="8dp"
+                android:id="@+id/songlist_element_title" android:layout_marginTop="@dimen/musicplayer_margin_elem"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" android:textSize="18sp" android:textAlignment="textStart"
+                android:layout_marginStart="@dimen/musicplayer_margin_elem" android:textSize="@dimen/songcard_title_testSize" android:textAlignment="textStart"
                 android:textAllCaps="false" android:textColor="@android:color/black"/>
         <TextView
                 android:text="Arcade Fire"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/songlist_element_author"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/musicplayer_margin_elem"
                 app:layout_constraintTop_toBottomOf="@+id/songlist_element_title"
                 app:layout_constraintStart_toEndOf="@+id/textView"
-                android:textColor="@android:color/black" android:layout_marginStart="8dp"/>
+                android:textColor="@android:color/black" android:layout_marginStart="@dimen/musicplayer_margin_elem"/>
         <TextView
                 android:text="The Suburbs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/songlist_element_album" android:layout_marginTop="8dp"
+                android:id="@+id/songlist_element_album" android:layout_marginTop="@dimen/musicplayer_margin_elem"
                 app:layout_constraintTop_toBottomOf="@+id/songlist_element_author"
                 app:layout_constraintStart_toEndOf="@+id/textView2"
-                android:textColor="@android:color/black" android:layout_marginStart="8dp"/>
+                android:textColor="@android:color/black" android:layout_marginStart="@dimen/musicplayer_margin_elem"/>
         <TextView
                 android:text="@string/songlist_element_titleTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="16dp" android:layout_marginTop="8dp"
+                android:layout_marginStart="@dimen/songcard_lowertext_marginStart" android:layout_marginTop="@dimen/musicplayer_margin_elem"
                 app:layout_constraintTop_toBottomOf="@+id/songlist_element_title"/>
         <TextView
                 android:text="@string/songlist_element_album"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView2" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="16dp" app:layout_constraintTop_toBottomOf="@+id/textView"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginStart="@dimen/songcard_lowertext_marginStart" app:layout_constraintTop_toBottomOf="@+id/textView"
+                android:layout_marginTop="@dimen/musicplayer_margin_elem"/>
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>
 

@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.musicservice
 
 interface MusicServiceListener {
     fun refreshUI(songPos: Int)

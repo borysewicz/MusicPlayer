@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:id="@+id/home_songList_RV"
-            android:paddingBottom="100dp"
+            android:paddingBottom="@dimen/home_RV_paddingBot"
             android:clipToPadding="false"
             app:layout_constraintTop_toBottomOf="@+id/main_toolbar"
             app:layout_constraintBottom_toBottomOf="parent"/>

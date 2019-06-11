@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.musicservice
 
 import android.app.Service
 import android.content.Intent
@@ -68,7 +68,8 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
         try {
             player.setDataSource(applicationContext, trackUri)
         } catch (e: Exception) {
-            Log.wtf(ERR_LOADING,MSG_ERR_LOADING)
+            Log.wtf(ERR_LOADING, MSG_ERR_LOADING
+            )
         }
         player.prepareAsync()
     }
@@ -129,7 +130,7 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener,
         else{
             songPos = (songPos +1)%songs.size
         }
-        playSong();
+        playSong()
     }
 
     inner class MusicBinder : Binder() {

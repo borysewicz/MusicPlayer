@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="home_RV_paddingBot">100dp</dimen>
+    <dimen name="musicplayer_margin_elem">8dp</dimen>
+    <dimen name="songcard_title_testSize">18sp</dimen>
+    <dimen name="songcard_lowertext_marginStart">16dp</dimen>
+</resources>

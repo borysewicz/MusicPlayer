@@ -21,20 +21,24 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.MediaController
+import com.example.musicplayer.musicservice.MusicService
+import com.example.musicplayer.musicservice.MusicServiceListener
+import com.example.musicplayer.songlistadapter.SongListAdapter
+import com.example.musicplayer.songlistadapter.SongListListener
 
 
-class MainActivity : AppCompatActivity(), SongListListener, MediaController.MediaPlayerControl, MusicServiceListener {
+class MainActivity : AppCompatActivity(), SongListListener, MediaController.MediaPlayerControl,
+    MusicServiceListener {
 
     private var songList : MutableList<Song> = mutableListOf()
     private lateinit var songAdapter : SongListAdapter
     private lateinit var musicService: MusicService
     private lateinit var controller: MusicController
     private var playIntent : Intent? = null
-    private var isBound = false
     private var hasPermission = false
 
     companion object {
-        private const val MARGIN = 8
+        private const val CARD_ELEMENT_MARGIN = 8
         private const val READ_PERM_KEY = 667
     }
 
@@ -44,10 +48,8 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
             musicService = binder.getService()
             musicService.setSongs(songList)
             musicService.setListener(this@MainActivity)
-            isBound = true
         }
         override fun onServiceDisconnected(name: ComponentName) {
-            isBound = false
         }
     }
 
@@ -62,7 +64,7 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = songAdapter
-            addItemDecoration(SpacesItemDecoration(MARGIN))
+            addItemDecoration(SpacesItemDecoration(CARD_ELEMENT_MARGIN))
         }
         setController()
         setSupportActionBar(findViewById(R.id.main_toolbar))
@@ -80,7 +82,6 @@ class MainActivity : AppCompatActivity(), SongListListener, MediaController.Medi
         }
         return true
     }
-
 
     override fun onStart() {
         super.onStart()
